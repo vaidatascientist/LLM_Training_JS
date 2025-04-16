@@ -7,7 +7,6 @@ from botocore import UNSIGNED
 from botocore.config import Config
 from itertools import islice
 
-import tree_sitter_javascript as tsjs
 from tree_sitter import Language, Parser
 
 if not os.path.exists('my-languages.so'):
@@ -223,7 +222,7 @@ def get_js_functions():
     p.close()
     p.join()
 
-    print(f"✅ Total JavaScript functions extracted: {len(funs)}")
+    # print(f"✅ Total JavaScript functions extracted: {len(funs)}")
     return funs
   
     # sample = None
