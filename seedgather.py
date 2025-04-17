@@ -116,7 +116,9 @@ def get_top_level_functions(src, tree):
     for node, ty in captures:
         if ty not in ["function.def", "function.anon"]:
             continue
-        res.append(node_to_string(src, node))
+        raw_fn = node_to_string(src, node)
+        pretty_fn = beautify_js_function(raw_fn)  # <-- Beautify here
+        res.append(pretty_fn)
 
     return res
 
@@ -166,7 +168,7 @@ def get_js_functions():
         cache_dir="./stack_cache"
     )
     
-    first_1000 = list(islice(ds, 1000))
+    first_1000 = list(islice(ds, 10000))
 
     funs = set()
     NUM_WORKERS = os.cpu_count()

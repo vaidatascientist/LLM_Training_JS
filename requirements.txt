@@ -10,4 +10,5 @@ numpy
 torch
 accelerate
 transformers
+jsbeautifier
 # npm install -g eslint
