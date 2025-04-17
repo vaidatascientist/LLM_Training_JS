@@ -2,7 +2,8 @@ from tqdm import tqdm
 import datasets
 
 from seedgather import get_js_functions
-from seedgather_highquality import does_have_return, typecheck_batch
+from seedgather_filter1 import does_have_return, typecheck_batch
+from seedgather_filter2 import pre_filtering
 
 def main():
     all_functions = get_js_functions()
@@ -35,7 +36,6 @@ def main():
 
             if len(batch) == 250 or i == max_i:
                 filemap = typecheck_batch(batch)
-                print(f"Pass rate: {len(filemap)}/{len(batch)}")
                 for sha1, contents in filemap.items():
                     new_ds["content"].append(contents)
                     new_ds["sha1"].append(sha1)
@@ -49,6 +49,10 @@ def main():
 
     new_ds_hf = datasets.Dataset.from_dict(new_ds)
     print(f"✅ Total high quality JavaScript functions with return statements: {len(new_ds_hf)}")
+    
+    dataset = new_ds_hf
+    dataset = dataset.filter(pre_filtering)
+    print(f"✅ Total JavaScript functions after pre-filtering: {len(dataset)}")
     
     return all_functions
 

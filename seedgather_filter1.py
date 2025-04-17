@@ -1,16 +1,14 @@
 import subprocess
 import tempfile
-import signal
 import hashlib
 import os
 import argparse
-from typing import List, Dict
-from tqdm import tqdm
+from typing import Dict
 from tree_sitter import Language, Parser
 
 if not os.path.exists('my-languages.so'):
     Language.build_library('my-languages.so', ['tree-sitter-javascript'])
-    
+
 LANGUAGE = Language('my-languages.so', 'javascript')
 
 RETURN_QUERY = LANGUAGE.query("""
@@ -35,12 +33,11 @@ def does_have_return(src):
             return True
     return False
 
-# runs mypy in the given directory, returns stdout
-# then, it logs the number of errors for each file
-def run_mypy(d):
+# runs eslint in the given directory, returns a map of file -> error count
+def run_eslint(d):
     try:
         outs = subprocess.run(
-            ["mypy", "."],
+            ["eslint", ".", "--no-eslintrc", "--env", "es6", "--parser-options=ecmaVersion:2018", "--format", "compact"],
             cwd=d,
             capture_output=True,
             timeout=120,
@@ -53,15 +50,13 @@ def run_mypy(d):
     filemap = {}
     lines = outs.split("\n")
     for line in lines:
-        if line.strip():
+        if ":" in line and "error" in line:
             parts = line.split(":")
             if len(parts) >= 2:
                 file = parts[0].split("/")[-1]
                 if file not in filemap:
                     filemap[file] = 0
-                if "error:" in line:
-                    filemap[file] += 1
-
+                filemap[file] += 1
     return filemap
 
 def typecheck_batch(files):
@@ -72,41 +67,30 @@ def typecheck_batch(files):
             hash_object = hashlib.sha1(bytes(contents, "utf8"))
             hex_dig = hash_object.hexdigest()
             filemap[hex_dig] = contents
-            name = os.path.join(tempdir, hex_dig + ".py")
+            name = os.path.join(tempdir, hex_dig + ".js")
             with open(name, "w") as f:
                 f.write(contents)
 
-        # Run mypy in the temporary directory
-        typecheck_map = run_mypy(tempdir)
+        # Run eslint in the temporary directory
+        typecheck_map = run_eslint(tempdir)
         print(typecheck_map)
 
         if typecheck_map is None:
             return {}
 
         for contents, errors in typecheck_map.items():
-            no_py = contents.replace(".py", "")
+            no_js = contents.replace(".js", "")
             if errors == 0:
                 continue
-            if no_py in filemap:
-                del filemap[no_py]
+            if no_js in filemap:
+                del filemap[no_js]
 
         return filemap
 
-def infer_imports(code):
-    import autoimport
-    try:
-        def handler(signum, frame):
-            raise Exception("Timeout")
-        signal.signal(signal.SIGALRM, handler)
-        signal.alarm(10)
-        inferred = autoimport.fix_code(code)
-        signal.alarm(0)
-        return inferred
-    except Exception as e:
-        signal.alarm(0)
-        print(f"Error while inferring imports: {e}")
-        return code
-    
+# def infer_imports(code):
+#     # No-op for JavaScript
+#     return code
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some JavaScript files.")
     parser.add_argument("files", nargs="+", help="List of JavaScript files to process")
@@ -120,5 +104,3 @@ if __name__ == "__main__":
                 print("Has return statement")
             else:
                 print("No return statement")
-            inferred_code = infer_imports(code)
-            print(inferred_code)
