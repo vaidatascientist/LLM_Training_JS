@@ -6,6 +6,7 @@ from smart_open import open
 from botocore import UNSIGNED
 from botocore.config import Config
 from itertools import islice
+import jsbeautifier
 
 from tree_sitter import Language, Parser
 
@@ -21,6 +22,11 @@ def download_contents(blob_id, src_encoding):
     with open(s3_url, "rb", compression=".gz", transport_params={"client": s3}) as fin:
         content = fin.read().decode(src_encoding)
     return {"content": content}
+
+def beautify_js_function(js_code):
+    opts = jsbeautifier.default_options()
+    opts.indent_size = 4
+    return jsbeautifier.beautify(js_code, opts)
 
 TOPLEVEL_QUERY = LANGUAGE.query("""
 ;; Function declarations
@@ -134,36 +140,8 @@ def parse_ex(parser, ex):
     except Exception:
         return []
 
-# def parse_ex(parser, ex):
-#     try:
-#         blob_id = ex.get("blob_id")
-#         src_encoding = ex.get("src_encoding")
-#         if not blob_id or not src_encoding:
-#             print("⚠️ Skipping example with missing blob_id or src_encoding")
-#             return []
-
-#         result = download_contents(blob_id, src_encoding)
-#         if not result or "content" not in result:
-#             print(f"⚠️ Failed to retrieve or decode content for blob {blob_id}")
-#             return []
-
-#         code_str = result["content"]
-#         print(f"📦 Downloaded blob {blob_id} with size: {len(code_str)}")
-
-#         buf = bytes(code_str, "utf8")
-#         tree = parser.parse(buf)
-
-#         fns = get_top_level_functions(buf, tree)
-#         if fns:
-#             print(f"✅ Found {len(fns)} function(s) in blob {blob_id}")
-#         return fns
-
-#     except Exception as e:
-#         print(f"❌ Error in parse_ex for blob {ex.get('blob_id', 'unknown')}: {e}")
-#         return []
-
 def process_chunk(chunk):
-    parser = make_parser()  # Create a fresh parser in each worker
+    parser = make_parser()  
     chunk_new_funs = set()
     for ex in chunk:
         try:
@@ -174,8 +152,6 @@ def process_chunk(chunk):
     return chunk_new_funs
 
 def make_parser():
-    # parser = Parser(LANGUAGE)
-    # return parser
     parser = Parser()
     parser.set_language(LANGUAGE)
     return parser
@@ -222,57 +198,7 @@ def get_js_functions():
     p.close()
     p.join()
 
-    # print(f"✅ Total JavaScript functions extracted: {len(funs)}")
     return funs
-  
-    # sample = None
-    # for ex in first_1000:
-    #     blob_id = ex["blob_id"]
-    #     src_encoding = ex["src_encoding"]
-    #     try:
-    #         code_str = download_contents(blob_id, src_encoding)["content"]
-    #         if "function" in code_str:  # Naive check
-    #             sample = ex
-    #             break
-    #     except Exception as e:
-    #         continue
-
-    # if sample is None:
-    #     print("❌ Could not find a sample with the word 'function'")
-    #     return funs
-
-    # print(f"\n🧪 Sample blob_id: {sample['blob_id']}")
-    # print("📄 Code Preview:\n")
-    # print(code_str[:1000])  # print first 1000 characters
-
-    # # Run Tree-sitter parser directly
-    # buf = bytes(code_str, "utf8")
-    # parser = make_parser()
-    # tree = parser.parse(buf)
-    # functions = get_top_level_functions(buf, tree)
-
-    # print(f"\n🔍 Functions found in sample: {len(functions)}")
-    # for idx, fn in enumerate(functions, 1):
-    #     print(f"\n--- Function {idx} ---\n{fn}\n")
-
-
-    # blob_id = sample["blob_id"]
-    # src_encoding = sample["src_encoding"]
-    # code_str = download_contents(blob_id, src_encoding)["content"]
-
-    # print(f"\n🧪 Sample blob_id: {blob_id}\nCode Preview:\n{code_str[:500]}\n")
-
-    # parser = make_parser()
-    # buf = bytes(code_str, "utf8")
-    # tree = parser.parse(buf)
-
-    # fns = get_top_level_functions(buf, tree)
-    # print(f"🔍 Functions found in sample: {len(fns)}")
-    # for fn in fns:
-    #     print("------ Function Start ------")
-    #     print(fn)
-    #     print("------ Function End ------")
-    # return funs
 
 if __name__ == "__main__":
     import multiprocessing
