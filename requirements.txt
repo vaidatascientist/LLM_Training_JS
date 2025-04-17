@@ -1,0 +1,13 @@
+tqdm
+datasets
+tree_sitter==0.20.1
+tree-sitter-javascript
+boto3
+smart_open
+botocore
+argparse
+numpy
+torch
+accelerate
+transformers
+# npm install -g eslint
