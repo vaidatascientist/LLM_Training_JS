@@ -1,4 +1,5 @@
 tqdm
+vllm
 datasets
 tree_sitter==0.20.1
 tree-sitter-javascript
