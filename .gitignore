@@ -1,7 +1,6 @@
 tree-sitter-javascript/
 stack_cache/
-data/
-self-ossinstruct-fewshot.txt
+my-languages.so
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
