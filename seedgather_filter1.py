@@ -87,10 +87,6 @@ def typecheck_batch(files):
 
         return filemap
 
-# def infer_imports(code):
-#     # No-op for JavaScript
-#     return code
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Process some JavaScript files.")
     parser.add_argument("files", nargs="+", help="List of JavaScript files to process")

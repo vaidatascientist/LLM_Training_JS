@@ -1,6 +1,5 @@
 from tqdm import tqdm
 import datasets
-import torch
 
 from seedgather import get_js_functions
 from seedgather_filter1 import does_have_return, typecheck_batch
@@ -59,30 +58,6 @@ def main():
     
     # save the dataset to disk
     dataset.save_to_disk("data")
-    
-    # from transformers import AutoTokenizer, AutoModelForCausalLM
-    
-    # checkpoint = "bigcode/starcoder2-3b"
-    # tokenizer = AutoTokenizer.from_pretrained(checkpoint)
-
-    # # for fp16 use `torch_dtype=torch.float16` instead
-    # model = AutoModelForCausalLM.from_pretrained(checkpoint, device_map="auto", torch_dtype=torch.bfloat16)
-    
-    # dummy = 'function dummy() {\n  //\n  return;\n}'
-    # dummy_prompt = prompt_fmt(dummy)
-    # few_shot_toks = len(tokenizer.encode(dummy_prompt)) - len(tokenizer.encode(dummy))
-    # print(f"Few-shot prompt has {few_shot_toks} tokens")
-    
-    # prompts = generate_prompts(dataset, tokenizer, few_shot_toks, dummy_prompt, prompt_fmt)
-    # print(f"✅ Total prompts generated: {len(prompts)}")
-    
-    # See random 5 prompts
-    # for i in range(5):
-    #     print(prompts[i])
-    #     print("\n" + "=" * 80 + "\n")
-    
-    # responses = get_responses(prompts, tokenizer, model, chunkify, chunk_size=512)
-    # print(f"✅ Total responses generated: {len(responses)}")
     
 if __name__ == "__main__":
     main()
