@@ -29,24 +29,16 @@ def js_extract_docstring(code):
 def pre_filtering(ex):
     code = ex["content"]
 
-    # Filter out functions without arguments
     if "function()" in code or "() =>" in code:
         return False
 
-    # Filter out bad substrings
     lower = code.lower()
     for word in BAD_SUBSTRINGS:
         if word in lower:
             return False
 
-    # Too many lines of code -- say 150
     lines = code.split("\n")
     if len(lines) > 150:
         return False
-
-    # Optionally, filter out functions with no docstring/comment
-    # doc, _ = js_extract_docstring(code)
-    # if not doc:
-    #     return False
 
     return True

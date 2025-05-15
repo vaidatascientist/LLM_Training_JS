@@ -1,4 +1,5 @@
 MAX_NEW_DATA=1000000
+
 python ./selfcodealign/src/star_align/self_ossinstruct.py \
  --seed_data_files "./data/c_to_i.jsonl" \
  --use_vllm_server True \

@@ -159,7 +159,6 @@ def make_parser():
     return parser
 
 def get_js_functions():
-    
     ds = datasets.load_dataset(
         "bigcode/the-stack-v2-dedup",
         data_dir="data/JavaScript",
@@ -168,7 +167,7 @@ def get_js_functions():
         cache_dir="./stack_cache"
     )
     
-    first_1000 = list(islice(ds, 10000))
+    first_1000 = list(islice(ds, 1000))
 
     funs = set()
     NUM_WORKERS = os.cpu_count()

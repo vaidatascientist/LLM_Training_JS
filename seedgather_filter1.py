@@ -26,8 +26,7 @@ def does_have_return(src):
     root = tree.root_node
     captures = RETURN_QUERY.captures(root)
     for node, _ in captures:
-        # if it doesn't have an argument, it's not a return with a value
-        if len(node.children) <= 1:  # includes "return" itself
+        if len(node.children) <= 1:  
             continue
         else:
             return True

@@ -57,7 +57,7 @@ def main():
     print(f"✅ Total JavaScript functions after pre-filtering: {len(dataset)}")
     
     # save the dataset to disk
-    dataset.save_to_disk("data")
+    dataset.save_to_disk("data_test")
     
 if __name__ == "__main__":
     main()
