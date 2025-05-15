@@ -1,6 +1,7 @@
 tree-sitter-javascript/
 stack_cache/
 my-languages.so
+selfcodealign
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
